@@ -33,6 +33,7 @@ import android.hardware.Camera.Area;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
+import android.os.Build;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -259,8 +260,15 @@ final class Utils {
                     throw new CodeScannerException("Invalid display rotation");
                 }
         }
-        return ((cameraInfo.facing == CameraInfo.CAMERA_FACING_FRONT ? 180 : 360) +
+        // Non-ChromeBook front camera needs to be flipped
+        return (((cameraInfo.facing == CameraInfo.CAMERA_FACING_FRONT && !isArc()) ? 180 : 360) +
                 cameraInfo.orientation - degrees) % 360;
+    }
+
+    // Check if running on Android Runtime for Chrome
+    // Copied from https://github.com/google/talkback/blame/9b1d5132b074174d02886faccf731e814d69363c/utils/src/main/java/FeatureSupport.java
+    public static boolean isArc() {
+        return (Build.DEVICE != null && Build.DEVICE.matches(".+_cheets|cheets_.+"));
     }
 
     public static boolean isPortrait(final int orientation) {
